@@ -1,15 +1,28 @@
 import httpx
 from fastapi import HTTPException
-from src.utils.mapbox.search import get_places_async
+from src.utils.mapbox.search import get_place_data
 from src.utils.mapbox.matrix import get_route_matrix
 from src.utils.mapbox.directions import get_route_direction
 from .model import PlaceMetadata
 from .utils import extract_coordinates, get_duration_matrix, build_nodes, find_node_index_by_id, path_optimizer_algorithm, reorder_nodes, extract_optimal_coordinates
 
 
-async def search_place(place: str) -> list[PlaceMetadata]:
-    return await get_places_async(place)
-
+async def search_place(location: str) -> list[PlaceMetadata]:
+    try:
+        place_data = await get_place_data(location)
+    except httpx.HTTPStatusError as exc:
+        raise HTTPException(
+            status_code=502,
+            detail="Search provider returned an error response",
+        ) from exc
+    except httpx.RequestError as exc:
+        raise HTTPException(
+            status_code=503,
+            detail="Unable to reach search provider",
+        ) from exc
+    
+    return place_data
+    
 async def get_directions(source_id: str, destinations: list[PlaceMetadata]):
 
     #Get time/distance Matrix

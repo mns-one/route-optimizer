@@ -8,10 +8,15 @@ router = APIRouter(
 )
 
 @router.get("/search")
-async def search_feature(place_name: str) -> list[PlaceMetadata]:
-    if not place_name:
-        return{"Message": "Enter a valid location..."}
-    return await service.search_place(place_name)
+async def search_feature(location: str):
+    if len(location.strip()) < 2:
+        raise HTTPException(
+            status_code=400,
+            detail="Location name too short",
+        )
+    
+    search_result = await service.search_place(location)
+    return search_result
 
 @router.post("/direction")
 async def direction_feature(payload: RouteRequest):

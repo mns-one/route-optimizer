@@ -13,7 +13,7 @@ if not SEARCH_BASE_URL:
     raise ValueError("MAPBOX_SEARCH_BASE_URL environment variable not set")
 
 
-async def get_places_async(search_text: str) -> list[PlaceMetadata]:
+async def get_place_data(search_text: str) -> list[PlaceMetadata]:
     params = {
         "q": search_text,
         "limit": 3,
@@ -31,12 +31,12 @@ async def get_places_async(search_text: str) -> list[PlaceMetadata]:
 
             props = result.get("properties", {})
 
-            parsed_result = {
-                "id" : props.get("mapbox_id"),
-                "name" : props.get("name"),
-                "full_address" : props.get("full_address"),
-                "coordinates" : props.get("coordinates", {}),
-            }
+            parsed_result = PlaceMetadata(
+                id=props.get("mapbox_id"),
+                name=props.get("name"),
+                full_address=props.get("full_address"),
+                coordinates=props.get("coordinates", {}),
+            )
             data.append(parsed_result)
 
         return data
