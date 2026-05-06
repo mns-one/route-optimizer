@@ -35,6 +35,12 @@ async def direction_feature(request: Request, payload: RouteRequest):
             status_code=400,
             detail="At least 3 destination objects are required",
         )
+    
+    if len(destinations) > 20:
+        raise HTTPException(
+            status_code=400,
+            detail="At most 20 locations can be added",
+        )
 
     if not any(destination.id == source_id for destination in destinations):
         raise HTTPException(
