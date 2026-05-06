@@ -6,8 +6,6 @@ from redis.asyncio import Redis
 load_dotenv()
 HOST = os.getenv("REDIS_HOST", "localhost")
 PORT = int(os.getenv("REDIS_PORT", 6379))
-if not HOST or PORT:
-    raise ValueError("REDIS environment variable not set")
 
 CACHE_TTL = 86400
 
