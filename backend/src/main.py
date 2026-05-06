@@ -7,8 +7,12 @@ from slowapi.middleware import SlowAPIMiddleware
 
 from src.core.rate_limiter import limiter
 from src.core.cache_service import redis_client
+from src.middleware.global_rate_limit import GlobalRateLimitMiddleware
+
 
 app = FastAPI()
+
+app.add_middleware(GlobalRateLimitMiddleware)
 
 register_routes(app)
 
