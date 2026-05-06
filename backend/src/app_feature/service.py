@@ -4,7 +4,7 @@ from src.utils.mapbox.search import get_place_data
 from src.utils.mapbox.matrix import get_route_matrix
 from src.utils.mapbox.directions import get_route_direction
 from .model import PlaceMetadata
-from .utils import extract_coordinates, get_duration_matrix, build_nodes, find_node_index_by_id, path_optimizer_algorithm, reorder_nodes, extract_optimal_coordinates
+from .utils import extract_coordinates, get_duration_matrix, build_nodes, find_node_index_by_id, path_optimizer_algorithm, reorder_nodes, extract_optimal_coordinates, build_route_timeline
 
 
 async def search_place(location: str) -> list[PlaceMetadata]:
@@ -73,4 +73,11 @@ async def get_directions(source_id: str, destinations: list[PlaceMetadata]):
             detail="Unable to reach direction provider",
         ) from exc    
     
-    return route_direction
+    route_timeline = build_route_timeline(optimal_nodes_order, optimal_route_order, duration_matrix)
+    
+    route_data = {
+        "timeline": route_timeline,
+        "direction": route_direction,
+    }
+
+    return route_data

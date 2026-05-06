@@ -1,4 +1,4 @@
-from .model import PlaceMetadata, ApiCoordinatesObj, RouteNodeObj
+from .model import PlaceMetadata, ApiCoordinatesObj, RouteNodeObj, Timeline
 
 def extract_coordinates(destinations: list[PlaceMetadata]) -> list[ApiCoordinatesObj]:
     coords_list = []
@@ -59,6 +59,26 @@ def extract_optimal_coordinates(ordered_nodes: list[RouteNodeObj]) -> list[ApiCo
         optimized_coords.append(ApiCoordinatesObj(lng=node.lng, lat=node.lat))
 
     return optimized_coords
+
+def build_route_timeline(nodes: list[RouteNodeObj], route_order: list[int], durations: list[list[float]]) -> list[Timeline]:
+    timeline = []
+
+    for i, node_idx in enumerate(route_order):
+        node = nodes[node_idx]
+
+        if i < len(route_order) - 1:
+            next_idx = route_order[i + 1]
+            duration_sec = durations[node_idx][next_idx]
+        else:
+            duration_sec = None
+
+        timeline.append({
+            "stop_number": i + 1,
+            "node": node,
+            "next_duration_sec": duration_sec,
+        })
+
+    return timeline
 
 def path_optimizer_algorithm(duration_matrix: list[list[float]], source: int) -> list[int]:
     n = len(duration_matrix)

@@ -36,6 +36,6 @@ async def direction_feature(payload: RouteRequest):
             detail="source_id must match one of the destination object IDs",
         )
 
-    directions = await service.get_directions(source_id, destinations)
+    direction_result = await service.get_directions(source_id, destinations)
 
-    return directions
+    return direction_result

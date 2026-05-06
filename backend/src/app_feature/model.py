@@ -29,3 +29,8 @@ class PlaceMetadata(BaseModel):
 class RouteRequest(BaseModel):
     places: List[PlaceMetadata]
     source_id: str    
+
+class Timeline(BaseModel):
+    stop_number: int
+    node: RouteNodeObj
+    next_duration_sec: int
