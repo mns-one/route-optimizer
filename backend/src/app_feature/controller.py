@@ -1,6 +1,8 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from . import service
 from .model import PlaceMetadata, RouteRequest
+from .model import RouteRequest
+from src.core.rate_limiter import limiter
 
 router = APIRouter(
     prefix = '/app-feature',
@@ -8,7 +10,9 @@ router = APIRouter(
 )
 
 @router.get("/search")
-async def search_feature(location: str):
+@limiter.limit("10/minute")
+@limiter.limit("30/day")
+async def search_feature(request: Request, location: str):
     if len(location.strip()) < 2:
         raise HTTPException(
             status_code=400,
@@ -19,7 +23,9 @@ async def search_feature(location: str):
     return search_result
 
 @router.post("/direction")
-async def direction_feature(payload: RouteRequest):
+@limiter.limit("5/minute")
+@limiter.limit("10/day")
+async def direction_feature(request: Request, payload: RouteRequest):
 
     destinations = payload.places
     source_id = payload.source_id
