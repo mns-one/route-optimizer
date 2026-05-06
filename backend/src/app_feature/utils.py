@@ -74,7 +74,7 @@ def build_route_timeline(nodes: list[RouteNodeObj], route_order: list[int], dura
 
         timeline.append({
             "stop_number": i + 1,
-            "node": node,
+            "node": node.model_dump(),
             "next_duration_sec": duration_sec,
         })
 

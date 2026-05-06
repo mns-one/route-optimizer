@@ -5,11 +5,17 @@ from src.utils.mapbox.matrix import get_route_matrix
 from src.utils.mapbox.directions import get_route_direction
 from .model import PlaceMetadata
 from .utils import extract_coordinates, get_duration_matrix, build_nodes, find_node_index_by_id, path_optimizer_algorithm, reorder_nodes, extract_optimal_coordinates, build_route_timeline
-
+from src.core.cache_service import get_cache, set_cache
 
 async def search_place(location: str) -> list[PlaceMetadata]:
+    cached_data = await get_cache(location)
+    if cached_data is not None:
+        print("Cache hit!")
+        return cached_data
     try:
+        print("Cache miss!")
         place_data = await get_place_data(location)
+        await set_cache(location, place_data)
     except httpx.HTTPStatusError as exc:
         raise HTTPException(
             status_code=502,
@@ -27,8 +33,16 @@ async def get_directions(source_id: str, destinations: list[PlaceMetadata]):
 
     #Get time/distance Matrix
     coordinates = extract_coordinates(destinations)
+    coord_str = ";".join(
+        f"{c.lng},{c.lat}" for c in coordinates
+    ).join(source_id)
+    cached_data = await get_cache(coord_str)
+    if cached_data is not None:
+        print("Cache hit!")
+        return cached_data
 
     try:
+        print("Cache miss!")
         route_matrix_data = await get_route_matrix(coordinates)
     except httpx.HTTPStatusError as exc:
         raise HTTPException(
@@ -57,7 +71,7 @@ async def get_directions(source_id: str, destinations: list[PlaceMetadata]):
 
     optimal_nodes_order = reorder_nodes(nodes, optimal_route_order)
     optimal_coordinates_order = extract_optimal_coordinates(optimal_nodes_order)
-    
+    route_timeline = build_route_timeline(nodes, optimal_route_order, duration_matrix)
 
     #Fetch direction geometry n return optimized route
     try:
@@ -72,12 +86,12 @@ async def get_directions(source_id: str, destinations: list[PlaceMetadata]):
             status_code=503,
             detail="Unable to reach direction provider",
         ) from exc    
-    
-    route_timeline = build_route_timeline(optimal_nodes_order, optimal_route_order, duration_matrix)
-    
+
     route_data = {
         "timeline": route_timeline,
         "direction": route_direction,
     }
+
+    await set_cache(coord_str, route_data)
 
     return route_data
