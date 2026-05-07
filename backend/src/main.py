@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import os
+from dotenv import load_dotenv
 
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
@@ -10,11 +12,23 @@ from src.core.rate_limiter import limiter
 from src.core.cache_service import redis_client
 from src.middleware.global_rate_limit import GlobalRateLimitMiddleware
 
+load_dotenv()
+FRONTEND_URL = os.getenv("FRONTEND_URL")
+if not FRONTEND_URL:
+    raise ValueError("FRONTEND_URL environment variable is not set")
+
+origins = [
+    "http://localhost:8501"
+]
+
+if FRONTEND_URL:
+    origins.append(FRONTEND_URL)
+
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # tighten later
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
