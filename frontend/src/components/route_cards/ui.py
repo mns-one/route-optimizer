@@ -13,6 +13,7 @@ def format_duration(seconds):
         return f"{sec}s"
 
 def display_route_timeline(st):
+    # use directions data to build info card for each stop
     if not st.session_state.route_timeline:
         return
     
