@@ -1,8 +1,8 @@
-from components.map import render_map
+from components.map_render.map import render_map
 from components.search import display_search_area, display_search_results
 from components.search_results import display_user_selection_menu
-from components.route import find_route
-from components.route_timeline import display_route_timeline
+from components.route.get_route import find_route
+from components.route.display_route import display_route_timeline
 
 def render_ui(st):
     render_map(st)
