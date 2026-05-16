@@ -2,6 +2,7 @@ import folium
 from streamlit_folium import st_folium
 
 def render_map(st):
+    # base function to render map and elements on every re run
     m = folium.Map(location=(22.5937, 78.9629), zoom_start=5)
 
     render_marker(m, st.session_state.selected_points)
@@ -10,6 +11,7 @@ def render_map(st):
     st_folium(m, width=700, height=500)
 
 def render_marker(m, selected_points):
+    # scan selected_points to add them on map
     if not selected_points:
         return
 
@@ -30,6 +32,7 @@ def render_marker(m, selected_points):
         m.fit_bounds(coords_list)
 
 def render_route(m, directions_data):
+    # display available direction data on map
     if not directions_data:
         return
 
